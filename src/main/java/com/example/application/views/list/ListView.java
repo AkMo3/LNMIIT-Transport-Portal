@@ -1,7 +1,12 @@
 package com.example.application.views.list;
 
+import com.example.application.data.entity.Person;
+import com.example.application.data.entity.Place;
 import com.example.application.data.entity.TripDetail;
+import com.example.application.data.repository.PersonRepository;
+import com.example.application.data.repository.PlaceRepository;
 import com.example.application.data.service.CrmService;
+import com.example.application.security.SecurityService;
 import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import org.springframework.stereotype.Component;
@@ -17,6 +22,7 @@ import com.vaadin.flow.router.Route;
 import org.springframework.context.annotation.Scope;
 
 import javax.annotation.security.PermitAll;
+import java.util.Optional;
 
 @Component
 @Scope("prototype")
@@ -24,15 +30,24 @@ import javax.annotation.security.PermitAll;
 @PageTitle("Contacts | Vaadin CRM")
 @PermitAll
 public class ListView extends VerticalLayout {
-    Grid<TripDetail> grid = new Grid<>(TripDetail.class);
-    TextField filterText = new TextField();
-    TripDetailForm form;
-    CrmService service;
+    private Grid<TripDetail> grid = new Grid<>(TripDetail.class);
+    private TextField filterText = new TextField();
+    private TripDetailForm form;
+    private final CrmService service;
+    private final SecurityService securityService;
+    private Person currentAuthenticatedUser;
+    private final PersonRepository personRepository;
+    private final PlaceRepository placeRepository;
 
-    public ListView(CrmService service) {
+    public ListView(CrmService service, PlaceRepository placeRepository,
+                    SecurityService securityService, PersonRepository personRepository) {
         this.service = service;
+        this.securityService = securityService;
+        this.personRepository = personRepository;
+        this.placeRepository = placeRepository;
         addClassName("list-view");
         setSizeFull();
+        setCurrentUser();
         configureGrid();
         configureForm();
 
@@ -47,7 +62,7 @@ public class ListView extends VerticalLayout {
         updateList();
         closeEditor();
         grid.asSingleSelect().addValueChangeListener(event ->
-                editContact(event.getValue()));
+                editTrip(event.getValue()));
     }
 
     private HorizontalLayout getContent() {
@@ -60,10 +75,10 @@ public class ListView extends VerticalLayout {
     }
 
     private void configureForm() {
-        form = new TripDetailForm(service.findAllPlaces());
+        form = new TripDetailForm(service.findAllPlaces(), currentAuthenticatedUser);
         form.setWidth("25em");
-        form.addListener(TripDetailForm.SaveEvent.class, this::saveContact);
-        form.addListener(TripDetailForm.DeleteEvent.class, this::deleteContact);
+        form.addListener(TripDetailForm.SaveEvent.class, this::saveTrip);
+        form.addListener(TripDetailForm.DeleteEvent.class, this::deleteTrip);
         form.addListener(TripDetailForm.CloseEvent.class, e -> closeEditor());
     }
 
@@ -71,16 +86,17 @@ public class ListView extends VerticalLayout {
         grid.addClassNames("contact-grid");
         grid.setSizeFull();
         grid.setColumns();
+        grid.addColumn(tripDetail -> tripDetail.getPlaceOfDeparture().getName()).setHeader("From Location");
         grid.addColumn(tripDetail -> tripDetail.getToLocation().getName()).setHeader("To Location");
         grid.addColumn(tripDetail -> tripDetail.getTimeOfDeparture().toString()).setHeader("Date And Time of Departure");
         grid.addColumn(TripDetail::getOccupancyLeft).setHeader("Occupancy Left");
         grid.addColumn(tripDetail -> tripDetail.getTripCreator().getName()).setHeader("Trip Admin");
         grid.getColumns().forEach(col -> col.setAutoWidth(true));
         grid.asSingleSelect().addValueChangeListener(event ->
-                editContact(event.getValue()));
+                editTrip(event.getValue()));
     }
 
-    public void editContact(TripDetail tripDetail) {
+    public void editTrip(TripDetail tripDetail) {
         if (tripDetail == null) {
             closeEditor();
         } else {
@@ -90,14 +106,14 @@ public class ListView extends VerticalLayout {
         }
     }
 
-    private void saveContact(TripDetailForm.SaveEvent event) {
-        service.saveContact(event.getContact());
+    private void saveTrip(TripDetailForm.SaveEvent event) {
+        service.saveTrip(event.getContact());
         updateList();
         closeEditor();
     }
 
-    private void deleteContact(TripDetailForm.DeleteEvent event) {
-        service.deleteContact(event.getContact());
+    private void deleteTrip(TripDetailForm.DeleteEvent event) {
+        service.deleteTrip(event.getContact());
         updateList();
         closeEditor();
     }
@@ -110,25 +126,32 @@ public class ListView extends VerticalLayout {
 
     private void addTripDetails() {
         grid.asSingleSelect().clear();
-        editContact(new TripDetail());
+        TripDetail tripDetail = new TripDetail();
+        Place lnmiit = placeRepository.findByName("LNMIIT");
+        tripDetail.setPlaceOfDeparture(lnmiit);
+        tripDetail.setTripCreator(currentAuthenticatedUser);
+        editTrip(tripDetail);
     }
 
     private HorizontalLayout getToolbar() {
-        filterText.setPlaceholder("Filter by name...");
+        filterText.setPlaceholder("Filter by Destination...");
         filterText.setClearButtonVisible(true);
         filterText.setValueChangeMode(ValueChangeMode.LAZY);
         filterText.addValueChangeListener(e -> updateList());
-
-        Button addContactButton = new Button("Add Trip");
-//        addContactButton.addClickListener();
-
-        HorizontalLayout toolbar = new HorizontalLayout(filterText, addContactButton);
+        HorizontalLayout toolbar = new HorizontalLayout(filterText);
         toolbar.addClassName("toolbar");
+
+        if (currentAuthenticatedUser != null) {
+            Button addContactButton = new Button("Add Trip");
+            addContactButton.addClickListener(event -> addTripDetails());
+            toolbar.add(addContactButton);
+        }
+
         return toolbar;
     }
 
     private void updateList() {
-        grid.setItems(service.findAllContacts(filterText.getValue()));
+        grid.setItems(service.findAllDestination(filterText.getValue()));
     }
 
     private HorizontalLayout getPageHeader() {
@@ -137,5 +160,11 @@ public class ListView extends VerticalLayout {
         HorizontalLayout header = new HorizontalLayout(label);
         header.addClassName("page-header");
         return header;
+    }
+
+    private void setCurrentUser() {
+        String rollNumber = securityService.getAuthenticatedUser().getUsername();
+        Optional<Person> personOptional = personRepository.findByRollNumber(rollNumber);
+        currentAuthenticatedUser = personOptional.orElse(null);
     }
 }

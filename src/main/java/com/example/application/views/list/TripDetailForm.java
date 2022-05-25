@@ -1,5 +1,6 @@
 package com.example.application.views.list;
 
+import com.example.application.data.entity.Person;
 import com.example.application.data.entity.Place;
 import com.example.application.data.entity.TripDetail;
 import com.vaadin.flow.component.ComponentEvent;
@@ -26,6 +27,10 @@ public class TripDetailForm extends VerticalLayout {
     private final Label PLACE_OF_DEPARTURE_DECLARATION = new Label("Place Of Departure:");
     private final Label placeOfDeparture = new Label("Place Of Departure");
 
+    private final Label CONTACT_OF_TRIP_ADMIN = new Label("Place Of Departure:");
+    private final Label tripAdminContact = new Label("Place Of Departure");
+
+
     private final ReadOnlyHasValue<Place> panelTitle =
             new ReadOnlyHasValue<>(place -> {
                 if (place != null) placeOfDeparture.setText(place.getName());
@@ -42,8 +47,11 @@ public class TripDetailForm extends VerticalLayout {
     private final Button close = new Button("Cancel");
     Binder<TripDetail> binder = new BeanValidationBinder<>(TripDetail.class);
     private TripDetail tripDetail;
+    private final Person currentLoggedUser;
+    private final HorizontalLayout buttonPanel;
 
-    public TripDetailForm(List<Place> placeList) {
+    public TripDetailForm(List<Place> placeList, Person currentLoggedUser) {
+        this.currentLoggedUser = currentLoggedUser;
         addClassName("contact-form");
         List<Integer> possibleVacancies = List.of(1, 2, 3, 4, 5);
 
@@ -58,10 +66,10 @@ public class TripDetailForm extends VerticalLayout {
         toLocation.setItemLabelGenerator(Place::getName);
         timeOfDeparture.setLabel("Date and time of departure");
         timeOfDeparture.setStep(Duration.ofMinutes(30));
+        buttonPanel = createButtonsLayout();
 
+        add(getPlaceOfDeparture(), timeOfDeparture, occupancyLeft, toLocation);
 //        tripCreator.setItemLabelGenerator(Person::getName);
-
-        add(getPlaceOfDeparture(), timeOfDeparture, occupancyLeft, toLocation, createButtonsLayout());
     }
 
     private HorizontalLayout getPlaceOfDeparture() {
@@ -98,6 +106,13 @@ public class TripDetailForm extends VerticalLayout {
     public void setTripDetails(TripDetail tripDetail) {
         this.tripDetail = tripDetail;
         binder.readBean(tripDetail);
+        if (tripDetail != null && tripDetail.getTripCreator() != null && currentLoggedUser != null
+                && tripDetail.getTripCreator() .getRollNumber().equals(currentLoggedUser.getRollNumber())) {
+            add(buttonPanel);
+        }
+        else {
+            remove(buttonPanel);
+        }
     }
 
     // Events

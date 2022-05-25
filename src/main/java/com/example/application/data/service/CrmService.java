@@ -19,7 +19,7 @@ public class CrmService {
         this.placeRepository = placeRepository;
     }
 
-    public List<TripDetail> findAllContacts(String stringFilter) {
+    public List<TripDetail> findAllDestination(String stringFilter) {
         if (stringFilter == null || stringFilter.isEmpty()) {
             return tripDetailRepository.findAll();
         }
@@ -28,15 +28,11 @@ public class CrmService {
         }
     }
 
-    public long countContacts() {
-        return tripDetailRepository.count();
-    }
-
-    public void deleteContact(TripDetail tripDetail) {
+    public void deleteTrip(TripDetail tripDetail) {
         tripDetailRepository.delete(tripDetail);
     }
 
-    public void saveContact(TripDetail tripDetail) {
+    public void saveTrip(TripDetail tripDetail) {
         if (tripDetail == null) {
             System.err.println("Contact is null. Are you sure you have connected your form to the application?");
             return;

@@ -27,7 +27,8 @@ public class MainLayout extends AppLayout {
         HorizontalLayout header = new HorizontalLayout(new DrawerToggle(), logo);
 
         if (securityService.getAuthenticatedUser() != null) {
-            Button logout = new Button("Log out", e -> securityService.logout());
+            String userName = securityService.getAuthenticatedUser().getUsername();
+            Button logout = new Button("Log out: " + userName, e -> securityService.logout());
             header.add(logout);
         }
         else {

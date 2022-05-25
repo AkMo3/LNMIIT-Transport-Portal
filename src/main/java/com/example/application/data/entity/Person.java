@@ -30,6 +30,10 @@ public class Person {
     @NotNull
     private String hashedPassword;
 
+    @NotEmpty
+    @NotNull
+    private final String role = "ROLE_USER";
+
     public String getFirstName() {
         return firstName;
     }
@@ -72,5 +76,13 @@ public class Person {
 
     public void setHashedPassword(String hashedPassword) {
         this.hashedPassword = hashedPassword;
+    }
+
+    public Long getMemberId() {
+        return memberId;
+    }
+
+    public void setMemberId(Long memberId) {
+        this.memberId = memberId;
     }
 }

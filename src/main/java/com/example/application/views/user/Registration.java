@@ -12,6 +12,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.annotation.security.PermitAll;
 import java.util.Optional;
@@ -106,7 +107,7 @@ public class Registration extends VerticalLayout {
 
     private Person constructPerson() {
         Person newPerson = new Person();
-        newPerson.setHashedPassword(hashedPassword.getValue());
+        newPerson.setHashedPassword(new BCryptPasswordEncoder().encode(hashedPassword.getValue()));
         newPerson.setFirstName(firstName.getValue());
         newPerson.setLastName(lastName.getValue());
         newPerson.setPhoneNumber(phoneNumber.getValue());
