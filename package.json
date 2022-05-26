@@ -398,7 +398,7 @@
     "lit": "$lit",
     "@polymer/polymer": "$@polymer/polymer",
     "date-fns": "$date-fns",
-    "lumo-css-framework": "$lumo-css-framework",
-    "chokidar": "$chokidar"
+    "chokidar": "$chokidar",
+    "lumo-css-framework": "$lumo-css-framework"
   }
 }

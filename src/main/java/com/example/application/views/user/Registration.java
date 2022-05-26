@@ -2,6 +2,7 @@ package com.example.application.views.user;
 
 import com.example.application.data.entity.Person;
 import com.example.application.data.service.user.RegisterService;
+import com.example.application.views.LoginView;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Label;
@@ -12,6 +13,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.RouterLink;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.annotation.security.PermitAll;
@@ -26,7 +28,6 @@ public class Registration extends VerticalLayout {
     private final PasswordField hashedPassword = new PasswordField("Enter Password");
 
     private final Button register = new Button("Register");
-    private final Button cancel = new Button("Cancel");
 
     private final RegisterService registerService;
 
@@ -56,7 +57,7 @@ public class Registration extends VerticalLayout {
     }
 
     private HorizontalLayout getButtonPanel() {
-        HorizontalLayout buttonPanel = new HorizontalLayout(register, cancel);
+        HorizontalLayout buttonPanel = new HorizontalLayout(register);
         buttonPanel.setWidth("20%");
         return buttonPanel;
     }
@@ -71,7 +72,6 @@ public class Registration extends VerticalLayout {
 
     private void increaseFiledWidth() {
         register.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        cancel.addThemeVariants(ButtonVariant.LUMO_ERROR);
 
         firstName.setWidth("20%");
         lastName.setWidth("20%");

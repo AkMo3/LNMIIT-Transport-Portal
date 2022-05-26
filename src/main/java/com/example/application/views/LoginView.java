@@ -12,7 +12,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 @Route("login")
-@PageTitle("Login | Vaadin CRM")
+@PageTitle("Login | TRANSPORT INFORMATION PORTAL")
 public class LoginView extends VerticalLayout implements BeforeEnterObserver {
 
 	private final LoginForm login = new LoginForm();
@@ -34,7 +34,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
 			registerButton.setText(registerButton.getText().equals("Register") ? "Login" : "Register");
 		});
 
-		add(new H1("Vaadin CRM"), login, registration, registerButton);
+		add(new H1("TRANSPORT INFORMATION PORTAL"), login, registration, registerButton);
 	}
 
 	@Override

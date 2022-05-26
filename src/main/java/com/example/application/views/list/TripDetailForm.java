@@ -27,7 +27,7 @@ public class TripDetailForm extends VerticalLayout {
     private final Label PLACE_OF_DEPARTURE_DECLARATION = new Label("Place Of Departure:");
     private final Label placeOfDeparture = new Label("Place Of Departure");
 
-    private final Label CONTACT_OF_TRIP_ADMIN = new Label("Place Of Departure:");
+    private final Label CONTACT_OF_TRIP_ADMIN = new Label("Trip Admin Contact: ");
     private final Label tripAdminContact = new Label("Place Of Departure");
 
 
@@ -36,10 +36,15 @@ public class TripDetailForm extends VerticalLayout {
                 if (place != null) placeOfDeparture.setText(place.getName());
             });
 
+    private final ReadOnlyHasValue<Person> personReadOnlyHasValue = new ReadOnlyHasValue<>(
+        person -> {
+            if (person != null) tripAdminContact.setText(person.getPhoneNumber());
+        }
+    );
+
     private final DateTimePicker timeOfDeparture = new DateTimePicker("Date And Time");
 
     private final ComboBox<Integer> occupancyLeft = new ComboBox<>("Occupancy Left");
-//    private final ComboBox<Person> tripCreator = new ComboBox<Person>("Trip Admin");
     private final ComboBox<Place> toLocation = new ComboBox<>("To destination");
 
     private final Button save = new Button("Save");
@@ -57,6 +62,7 @@ public class TripDetailForm extends VerticalLayout {
 
         occupancyLeft.setItems(possibleVacancies);
         binder.forField(panelTitle).bind(TripDetail::getPlaceOfDeparture, null);
+        binder.forField(personReadOnlyHasValue).bind(TripDetail::getTripCreator, null);
         binder.forField(occupancyLeft)
                 .withNullRepresentation(0)
                 .bind(TripDetail::getOccupancyLeft, TripDetail::setOccupancyLeft);
@@ -68,13 +74,17 @@ public class TripDetailForm extends VerticalLayout {
         timeOfDeparture.setStep(Duration.ofMinutes(30));
         buttonPanel = createButtonsLayout();
 
-        add(getPlaceOfDeparture(), timeOfDeparture, occupancyLeft, toLocation);
-//        tripCreator.setItemLabelGenerator(Person::getName);
+        add(getPlaceOfDeparture(), timeOfDeparture, occupancyLeft, toLocation, getContactOfTripAdmin());
     }
 
     private HorizontalLayout getPlaceOfDeparture() {
         PLACE_OF_DEPARTURE_DECLARATION.getStyle().set("font-weight", "bold");
         return new HorizontalLayout(PLACE_OF_DEPARTURE_DECLARATION, placeOfDeparture);
+    }
+
+    private HorizontalLayout getContactOfTripAdmin() {
+        CONTACT_OF_TRIP_ADMIN.getStyle().set("font-weight", "bold");
+        return new HorizontalLayout(CONTACT_OF_TRIP_ADMIN, tripAdminContact);
     }
 
     private HorizontalLayout createButtonsLayout() {

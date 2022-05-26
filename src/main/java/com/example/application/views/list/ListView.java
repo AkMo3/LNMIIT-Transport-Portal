@@ -27,7 +27,7 @@ import java.util.Optional;
 @Component
 @Scope("prototype")
 @Route(value="", layout = MainLayout.class)
-@PageTitle("Contacts | Vaadin CRM")
+@PageTitle("Current Trips | TRANSPORT INFORMATION PORTAL")
 @PermitAll
 public class ListView extends VerticalLayout {
     private Grid<TripDetail> grid = new Grid<>(TripDetail.class);
