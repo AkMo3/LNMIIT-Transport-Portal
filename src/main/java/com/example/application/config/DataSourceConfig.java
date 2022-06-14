@@ -1,20 +1,29 @@
 package com.example.application.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
 
 import javax.sql.DataSource;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 
 @Configuration
 public class DataSourceConfig {
 
+    @Autowired private Environment environment;
+
     @Bean
-    @Profile("production")
     public DataSource getDataSource() {
+        String currentProfile = Arrays.toString(this.environment.getActiveProfiles());
+        System.out.println("Current Env: " + currentProfile);
+        if (currentProfile.equals("[dev]")) {
+            return getDataSource2();
+        }
         try {
             URI dbUri = new URI(System.getenv("DATABASE_URL"));
 
@@ -34,14 +43,13 @@ public class DataSourceConfig {
         }
     }
 
-    @Bean
-    @Profile("!production")
     public DataSource getDataSource2() {
+        System.out.println("Current Env: " + Arrays.toString(this.environment.getActiveProfiles()));
         DataSourceBuilder<?> dataSourceBuilder = DataSourceBuilder.create();
         dataSourceBuilder.driverClassName("com.mysql.cj.jdbc.Driver");
         dataSourceBuilder.url("jdbc:mysql://localhost:3306/LNMIIT_TRANSPORT");
         dataSourceBuilder.username("lnmuser");
-        dataSourceBuilder.password("password");
+        dataSourceBuilder.password("Password@123");
         return dataSourceBuilder.build();
     }
 }

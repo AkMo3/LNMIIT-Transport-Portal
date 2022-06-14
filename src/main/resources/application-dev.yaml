@@ -10,6 +10,9 @@ vaadin:
   pnpm-enabled: false
 
 spring:
+  config:
+    activate:
+      on-profile: dev
   datasource:
     dbcp2:
       test-while-idle: true
