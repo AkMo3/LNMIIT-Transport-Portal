@@ -6,6 +6,7 @@ import com.example.application.data.entity.TripDetail;
 import com.example.application.data.repository.PersonRepository;
 import com.example.application.data.repository.PlaceRepository;
 import com.example.application.data.repository.TripDetailRepository;
+import org.springframework.context.annotation.Profile;
 import org.vaadin.artur.exampledata.DataType;
 import org.vaadin.artur.exampledata.ExampleDataGenerator;
 import com.vaadin.flow.spring.annotation.SpringComponent;
@@ -24,6 +25,7 @@ import java.util.stream.Stream;
 public class DataGenerator {
 
     @Bean
+    @Profile({"!production"})
     public CommandLineRunner loadData(TripDetailRepository tripDetailRepository, PersonRepository personRepository,
                                       PlaceRepository placeRepository) {
 
@@ -42,9 +44,8 @@ public class DataGenerator {
             personGenerator.setData(Person::setRollNumber, DataType.EMAIL);
             personGenerator.setData(Person::setHashedPassword, DataType.TWO_WORDS);
             List<Person> personList = personRepository.saveAll(personGenerator.create(5, seed));
-            List<Place> placeList = placeRepository.saveAll(Stream.of("Raja Park", "Railway Station")
-                    .map(Place::new).collect(Collectors.toList()));
-            Place source = placeRepository.save(new Place("LNMIIT"));
+            List<Place> placeList = placeRepository.saveAll(Stream.of("Raja Park", "Railway Station"
+                    , "LNMIIT").map(Place::new).collect(Collectors.toList()));
 
             logger.info("... generating 50 Trip entities...");
             ExampleDataGenerator<TripDetail> tripDetailGenerator = new ExampleDataGenerator<>(TripDetail.class,
@@ -56,15 +57,15 @@ public class DataGenerator {
             List<TripDetail> tripDetails = tripDetailGenerator.create(50, seed).stream().peek(tripDetail -> {
                 tripDetail.setTripCreator(personList.get(r.nextInt(personList.size())));
                 tripDetail.setToLocation(placeList.get(r.nextInt(placeList.size())));
-                tripDetail.setPlaceOfDeparture(source);
+                Place source = placeList.get(r.nextInt(placeList.size()));
+                while (source == tripDetail.getToLocation()) source = placeList.get(r.nextInt(placeList.size()));
+                tripDetail.setFromLocation(source);
             }).collect(Collectors.toList());
 
             tripDetailRepository.saveAll(tripDetails);
 
             logger.info("Generated demo data");
         };
-
-//        return args -> {};
     }
 
 }

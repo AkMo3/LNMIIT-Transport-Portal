@@ -46,6 +46,7 @@ public class TripDetailForm extends VerticalLayout {
 
     private final ComboBox<Integer> occupancyLeft = new ComboBox<>("Occupancy Left");
     private final ComboBox<Place> toLocation = new ComboBox<>("To destination");
+    private final ComboBox<Place> fromLocation = new ComboBox<>("From destination");
 
     private final Button save = new Button("Save");
     private final Button delete = new Button("Delete");
@@ -61,7 +62,7 @@ public class TripDetailForm extends VerticalLayout {
         List<Integer> possibleVacancies = List.of(1, 2, 3, 4, 5);
 
         occupancyLeft.setItems(possibleVacancies);
-        binder.forField(panelTitle).bind(TripDetail::getPlaceOfDeparture, null);
+        binder.forField(panelTitle).bind(TripDetail::getFromLocation, null);
         binder.forField(personReadOnlyHasValue).bind(TripDetail::getTripCreator, null);
         binder.forField(occupancyLeft)
                 .withNullRepresentation(0)
@@ -70,16 +71,32 @@ public class TripDetailForm extends VerticalLayout {
 
         toLocation.setItems(placeList);
         toLocation.setItemLabelGenerator(Place::getName);
+        fromLocation.setItems(placeList);
+        fromLocation.setItemLabelGenerator(Place::getName);
         timeOfDeparture.setLabel("Date and time of departure");
         timeOfDeparture.setStep(Duration.ofMinutes(30));
         buttonPanel = createButtonsLayout();
-
-        add(getPlaceOfDeparture(), timeOfDeparture, occupancyLeft, toLocation, getContactOfTripAdmin());
+        addPlaceOfDepartureToLayout(false);
+        add(timeOfDeparture, occupancyLeft, toLocation, getContactOfTripAdmin());
     }
 
-    private HorizontalLayout getPlaceOfDeparture() {
+    private void addPlaceOfDepartureToLayout(boolean flag) {
         PLACE_OF_DEPARTURE_DECLARATION.getStyle().set("font-weight", "bold");
-        return new HorizontalLayout(PLACE_OF_DEPARTURE_DECLARATION, placeOfDeparture);
+        if(flag && (tripDetail == null || tripDetail.getFromLocation() == null)) {
+            add(new VerticalLayout(PLACE_OF_DEPARTURE_DECLARATION, fromLocation));
+        }
+        else {
+            add(new HorizontalLayout(PLACE_OF_DEPARTURE_DECLARATION, placeOfDeparture));
+        }
+    }
+
+    public void updateForm(TripDetail newTripDetail) {
+        this.tripDetail = newTripDetail;
+        binder.readBean(tripDetail);
+        this.removeAll();
+        addPlaceOfDepartureToLayout(true);
+        add(timeOfDeparture, occupancyLeft, toLocation, getContactOfTripAdmin());
+        setButtonPanel(tripDetail);
     }
 
     private HorizontalLayout getContactOfTripAdmin() {
@@ -113,12 +130,14 @@ public class TripDetailForm extends VerticalLayout {
         }
     }
 
-    public void setTripDetails(TripDetail tripDetail) {
-        this.tripDetail = tripDetail;
-        binder.readBean(tripDetail);
+    public void setButtonPanel(TripDetail tripDetail) {
+
         if (tripDetail != null && tripDetail.getTripCreator() != null && currentLoggedUser != null
                 && tripDetail.getTripCreator() .getRollNumber().equals(currentLoggedUser.getRollNumber())) {
             add(buttonPanel);
+        }
+        else if (tripDetail != null && tripDetail.getFromLocation() == null) {
+            add(save, close);
         }
         else {
             remove(buttonPanel);
@@ -126,32 +145,32 @@ public class TripDetailForm extends VerticalLayout {
     }
 
     // Events
-    public static abstract class ContactFormEvent extends ComponentEvent<TripDetailForm> {
+    public static abstract class TripDetailFormEvent extends ComponentEvent<TripDetailForm> {
         private final TripDetail tripDetail;
 
-        protected ContactFormEvent(TripDetailForm source, TripDetail tripDetail) {
+        protected TripDetailFormEvent(TripDetailForm source, TripDetail tripDetail) {
             super(source, false);
             this.tripDetail = tripDetail;
         }
 
-        public TripDetail getContact() {
+        public TripDetail getTripDetail() {
             return tripDetail;
         }
     }
 
-    public static class SaveEvent extends ContactFormEvent {
+    public static class SaveEvent extends TripDetailFormEvent {
         SaveEvent(TripDetailForm source, TripDetail tripDetail) {
             super(source, tripDetail);
         }
     }
 
-    public static class DeleteEvent extends ContactFormEvent {
+    public static class DeleteEvent extends TripDetailFormEvent {
         DeleteEvent(TripDetailForm source, TripDetail contact) {
             super(source, contact);
         }
     }
 
-    public static class CloseEvent extends ContactFormEvent {
+    public static class CloseEvent extends TripDetailFormEvent {
         CloseEvent(TripDetailForm source) {
             super(source, null);
         }

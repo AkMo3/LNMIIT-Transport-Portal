@@ -1,0 +1,29 @@
+server:
+  port: 8080
+
+logging:
+  level:
+    org:
+      atmosphere: warn
+
+vaadin:
+  pnpm-enabled: false
+
+spring:
+  config:
+    activate:
+      on-profile: production
+  datasource:
+    dbcp2:
+      test-while-idle: true
+      validation-query: SELECT 1
+  jpa:
+    show-sql: false
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true
+    hibernate:
+      ddl-auto: update

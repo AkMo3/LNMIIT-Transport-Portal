@@ -1,7 +1,6 @@
 package com.example.application.views.list;
 
 import com.example.application.data.entity.Person;
-import com.example.application.data.entity.Place;
 import com.example.application.data.entity.TripDetail;
 import com.example.application.data.repository.PersonRepository;
 import com.example.application.data.repository.PlaceRepository;
@@ -76,7 +75,7 @@ public class ListView extends VerticalLayout {
 
     private void configureForm() {
         form = new TripDetailForm(service.findAllPlaces(), currentAuthenticatedUser);
-        form.setWidth("25em");
+        form.setWidth("30%");
         form.addListener(TripDetailForm.SaveEvent.class, this::saveTrip);
         form.addListener(TripDetailForm.DeleteEvent.class, this::deleteTrip);
         form.addListener(TripDetailForm.CloseEvent.class, e -> closeEditor());
@@ -86,7 +85,7 @@ public class ListView extends VerticalLayout {
         grid.addClassNames("contact-grid");
         grid.setSizeFull();
         grid.setColumns();
-        grid.addColumn(tripDetail -> tripDetail.getPlaceOfDeparture().getName()).setHeader("From Location");
+        grid.addColumn(tripDetail -> tripDetail.getFromLocation().getName()).setHeader("From Location");
         grid.addColumn(tripDetail -> tripDetail.getToLocation().getName()).setHeader("To Location");
         grid.addColumn(tripDetail -> tripDetail.getTimeOfDeparture().toString()).setHeader("Date And Time of Departure");
         grid.addColumn(TripDetail::getOccupancyLeft).setHeader("Occupancy Left");
@@ -100,26 +99,26 @@ public class ListView extends VerticalLayout {
         if (tripDetail == null) {
             closeEditor();
         } else {
-            form.setTripDetails(tripDetail);
+            form.updateForm(tripDetail);
             form.setVisible(true);
             addClassName("editing");
         }
     }
 
     private void saveTrip(TripDetailForm.SaveEvent event) {
-        service.saveTrip(event.getContact());
+        service.saveTrip(event.getTripDetail());
         updateList();
         closeEditor();
     }
 
     private void deleteTrip(TripDetailForm.DeleteEvent event) {
-        service.deleteTrip(event.getContact());
+        service.deleteTrip(event.getTripDetail());
         updateList();
         closeEditor();
     }
 
     private void closeEditor() {
-        form.setTripDetails(null);
+        form.setButtonPanel(null);
         form.setVisible(false);
         removeClassName("editing");
     }
@@ -127,8 +126,6 @@ public class ListView extends VerticalLayout {
     private void addTripDetails() {
         grid.asSingleSelect().clear();
         TripDetail tripDetail = new TripDetail();
-        Place lnmiit = placeRepository.findByName("LNMIIT");
-        tripDetail.setPlaceOfDeparture(lnmiit);
         tripDetail.setTripCreator(currentAuthenticatedUser);
         editTrip(tripDetail);
     }

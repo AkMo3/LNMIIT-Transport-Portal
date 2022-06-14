@@ -15,7 +15,7 @@ public class TripDetail extends AbstractEntity {
     private LocalDateTime timeOfDeparture;
 
     @ManyToOne
-    private Place placeOfDeparture;
+    private Place fromLocation;
 
     @ManyToOne
     private Place toLocation;
@@ -38,12 +38,12 @@ public class TripDetail extends AbstractEntity {
         this.timeOfDeparture = timeOfDeparture;
     }
 
-    public Place getPlaceOfDeparture() {
-        return placeOfDeparture;
+    public Place getFromLocation() {
+        return fromLocation;
     }
 
-    public void setPlaceOfDeparture(Place placeOfDeparture) {
-        this.placeOfDeparture = placeOfDeparture;
+    public void setFromLocation(Place placeOfDeparture) {
+        this.fromLocation = placeOfDeparture;
     }
 
     public Place getToLocation() {

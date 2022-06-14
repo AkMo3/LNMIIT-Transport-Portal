@@ -1,0 +1,21 @@
+server:
+  port: 8080
+
+logging:
+  level:
+    org:
+      atmosphere: warn
+
+vaadin:
+  pnpm-enabled: false
+
+spring:
+  datasource:
+    dbcp2:
+      test-while-idle: true
+      validation-query: SELECT 1
+  jpa:
+    show-sql: true
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+    hibernate:
+      ddl-auto: create-drop
