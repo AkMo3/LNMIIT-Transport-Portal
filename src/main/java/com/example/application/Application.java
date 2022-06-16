@@ -21,7 +21,7 @@ import java.util.Arrays;
 @SpringBootApplication
 @NpmPackage(value = "lumo-css-framework", version = "^4.0.10")
 @Theme("flowcrmtutorial")
-@PWA(name = "VaadinCRM", shortName = "CRM", offlinePath="offline.html", offlineResources = { "./images/offline.png"})
+@PWA(name = "LNMIIT-Transport-Portal", shortName = "LTS", offlinePath="offline.html", offlineResources = { "./images/offline.png"})
 public class Application extends SpringBootServletInitializer implements AppShellConfigurator {
 
     public static void main(String[] args) {
