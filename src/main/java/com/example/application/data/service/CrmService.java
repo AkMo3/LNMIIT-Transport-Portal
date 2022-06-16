@@ -19,9 +19,9 @@ public class CrmService {
         this.placeRepository = placeRepository;
     }
 
-    public List<TripDetail> findAllDestination(String stringFilter) {
+    public List<TripDetail> findAllTripsByString(String stringFilter) {
         if (stringFilter == null || stringFilter.isEmpty()) {
-            return tripDetailRepository.findAll();
+            return tripDetailRepository.findByOrderByTimeOfDepartureDesc();
         }
         else {
             return tripDetailRepository.search(stringFilter);

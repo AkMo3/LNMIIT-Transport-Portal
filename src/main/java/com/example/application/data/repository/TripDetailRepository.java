@@ -12,4 +12,6 @@ public interface TripDetailRepository extends JpaRepository<TripDetail, UUID> {
     @Query("select c from TripDetail c " +
             "where lower(c.toLocation.name) like lower(concat('%', :searchTerm, '%'))")
     List<TripDetail> search(@Param("searchTerm") String searchTerm);
+
+    List<TripDetail> findByOrderByTimeOfDepartureDesc();
 }
