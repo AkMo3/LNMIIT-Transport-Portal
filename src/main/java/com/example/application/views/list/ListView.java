@@ -87,8 +87,8 @@ public class ListView extends VerticalLayout {
         grid.setColumns();
         grid.addColumn(tripDetail -> tripDetail.getFromLocation().getName()).setHeader("From Location");
         grid.addColumn(tripDetail -> tripDetail.getToLocation().getName()).setHeader("To Location");
-//        grid.addColumn(tripDetail -> tripDetail.getTimeOfDeparture().toString()).setHeader("Date And Time of Departure");
-        grid.addColumn(tripDetail -> tripDetail.getTimeOfDeparture().toLocalDate().toString()).setHeader("Date of Departure");
+        grid.addColumn(tripDetail -> tripDetail.getTimeOfDeparture().toLocalDate().toString())
+                .setHeader("Date of Departure");
         grid.addColumn(tripDetail -> tripDetail.getTimeOfDeparture().toLocalTime()
                 .format(dateTimeFormatter)).setHeader("Time of Departure");
         grid.addColumn(TripDetail::getOccupancyLeft).setHeader("Occupancy Left");
