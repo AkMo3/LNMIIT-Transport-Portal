@@ -3,7 +3,6 @@ package com.example.application.views.list;
 import com.example.application.data.entity.Person;
 import com.example.application.data.entity.TripDetail;
 import com.example.application.data.repository.PersonRepository;
-import com.example.application.data.repository.PlaceRepository;
 import com.example.application.data.service.CrmService;
 import com.example.application.security.SecurityService;
 import com.example.application.views.MainLayout;
@@ -21,6 +20,8 @@ import com.vaadin.flow.router.Route;
 import org.springframework.context.annotation.Scope;
 
 import javax.annotation.security.PermitAll;
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 @Component
@@ -36,14 +37,12 @@ public class ListView extends VerticalLayout {
     private final SecurityService securityService;
     private Person currentAuthenticatedUser;
     private final PersonRepository personRepository;
-    private final PlaceRepository placeRepository;
 
-    public ListView(CrmService service, PlaceRepository placeRepository,
+    public ListView(CrmService service,
                     SecurityService securityService, PersonRepository personRepository) {
         this.service = service;
         this.securityService = securityService;
         this.personRepository = personRepository;
-        this.placeRepository = placeRepository;
         addClassName("list-view");
         setSizeFull();
         setCurrentUser();
@@ -82,12 +81,16 @@ public class ListView extends VerticalLayout {
     }
 
     private void configureGrid() {
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("h.m a");
         grid.addClassNames("contact-grid");
         grid.setSizeFull();
         grid.setColumns();
         grid.addColumn(tripDetail -> tripDetail.getFromLocation().getName()).setHeader("From Location");
         grid.addColumn(tripDetail -> tripDetail.getToLocation().getName()).setHeader("To Location");
-        grid.addColumn(tripDetail -> tripDetail.getTimeOfDeparture().toString()).setHeader("Date And Time of Departure");
+//        grid.addColumn(tripDetail -> tripDetail.getTimeOfDeparture().toString()).setHeader("Date And Time of Departure");
+        grid.addColumn(tripDetail -> tripDetail.getTimeOfDeparture().toLocalDate().toString()).setHeader("Date of Departure");
+        grid.addColumn(tripDetail -> tripDetail.getTimeOfDeparture().toLocalTime()
+                .format(dateTimeFormatter)).setHeader("Time of Departure");
         grid.addColumn(TripDetail::getOccupancyLeft).setHeader("Occupancy Left");
         grid.addColumn(tripDetail -> tripDetail.getTripCreator().getName()).setHeader("Trip Admin");
         grid.getColumns().forEach(col -> col.setAutoWidth(true));
@@ -148,7 +151,7 @@ public class ListView extends VerticalLayout {
     }
 
     private void updateList() {
-        grid.setItems(service.findAllDestination(filterText.getValue()));
+        grid.setItems(service.findAllTripsByString(filterText.getValue()));
     }
 
     private HorizontalLayout getPageHeader() {

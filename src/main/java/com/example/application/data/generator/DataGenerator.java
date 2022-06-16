@@ -25,7 +25,6 @@ import java.util.stream.Stream;
 public class DataGenerator {
 
     @Bean
-    @Profile({"!production"})
     public CommandLineRunner loadData(TripDetailRepository tripDetailRepository, PersonRepository personRepository,
                                       PlaceRepository placeRepository) {
 
